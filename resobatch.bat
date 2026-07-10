@@ -1,1 +1,31 @@
-ÿþ2>nul@echo offsetlocal enabledelayedexpansionif defined RESOBATCH_ACTIVE (    goto aa) else (    echo This file can only be called, not executed directly.    echo Please read USAGE.txt for instructions on how to use ResoBatch.    pause    exit):aaset /a number=%random% %%100set "file=%~1"set "currentDir=%cd%"set "xvbsFile=%currentDir%\%number%.vbs"set "vbsFile=%number%.vbs"if /i "%~1"=="stop" (    taskkill /f /IM wscript.exe > nul 2>&1    goto con)(  echo Set Sound = CreateObject("WMPlayer.OCX.7"^)   echo Sound.URL = "%file%"   echo Sound.Controls.play   echo do while Sound.currentmedia.duration = 0   echo wscript.sleep 100   echo loop   echo wscript.sleep (int(Sound.currentmedia.duration^)+1^)*1000) > "C:\Users\%USERNAME%\AppData\Local\Temp\%vbsFile%"start /min wscript "C:\Users\%USERNAME%\AppData\Local\Temp\%vbsFile%"rem del "%number%.vbs" > nul 2>&1del /f /IM "C:\Users\%USERNAME%\AppData\Local\Temp\%vbsFile%" > nul 2>&1rem start "" cmd /c "ping localhost -n 1 > nul && del \"%vbsFile%\" > nul 2>&1":con
+@echo off
+setlocal EnableDelayedExpansion
+
+if not defined RESOBATCH_ACTIVE (
+    echo This file can only be called, not executed directly.
+    pause
+    exit /b
+)
+
+set /a number=%random% %% 100
+set "file=%~1"
+set "tempFile=%temp%\ResoBatch_%RANDOM%_%TIME::=%.vbs"
+
+if not exist "%file%" (
+    echo Attempted to play a nonexistent file.
+    pause
+    exit /b
+)
+
+(
+echo Set Sound = CreateObject("WMPlayer.OCX.7"^)
+echo Sound.URL = "%file%"
+echo Sound.Controls.play
+echo Do While Sound.playState ^<^> 1
+echo     WScript.Sleep 100
+echo Loop
+echo Set fso = CreateObject("Scripting.FileSystemObject"^)
+echo fso.DeleteFile WScript.ScriptFullName
+) > "%tempFile%"
+
+start "" /min wscript.exe "%tempFile%"
