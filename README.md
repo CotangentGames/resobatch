@@ -12,4 +12,3 @@ set RESOBATCH_ACTIVE=1
 To use ResoBatch, use the following commands in your batch file:
 
 START SOUND: call resobatch.bat "file name with extension"
-STOP SOUND:  call resobatch.bat stop 
